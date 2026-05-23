@@ -1,0 +1,18 @@
+{
+  "name": "@repute/sdk",
+  "version": "0.4.1",
+  "description": "Trust scores for autonomous agent commerce on Arc. Query merchant reputation before spending USDC.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["arc", "x402", "trust", "reputation", "agent", "usdc", "circle"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

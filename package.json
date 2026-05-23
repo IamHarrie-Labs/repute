@@ -1,0 +1,26 @@
+{
+  "name": "receipt-layer",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "indexer":   "pnpm --filter indexer dev",
+    "scoring":   "pnpm --filter scoring dev",
+    "api":       "pnpm --filter api dev",
+    "web":       "pnpm --filter web dev",
+    "provision": "pnpm --filter agents provision",
+    "merchants": "pnpm --filter agents merchants",
+    "buyers":    "pnpm --filter agents buyers",
+    "battle":    "concurrently --names \"MERCH,BUYERS\" -c \"cyan,green\" \"pnpm merchants\" \"pnpm buyers\"",
+    "dev":       "concurrently --names \"IDX,SCORE,API,WEB\" -c \"blue,magenta,yellow,white\" \"pnpm indexer\" \"pnpm scoring\" \"pnpm api\" \"pnpm web\"",
+    "dev:full":  "concurrently --names \"MERCH,API,IDX,SCORE,WEB\" -c \"cyan,yellow,blue,magenta,white\" \"pnpm merchants\" \"pnpm api\" \"pnpm indexer\" \"pnpm scoring\" \"pnpm web\" --delay 2000 --kill-others-on-fail",
+    "start":     "concurrently --names \"MERCH,API,IDX,SCORE,WEB,BUYERS\" -c \"cyan,yellow,blue,magenta,white,green\" \"pnpm merchants\" \"pnpm api\" \"pnpm indexer\" \"pnpm scoring\" \"pnpm web\" \"pnpm --filter agents buyers\" --delay 3000 --kill-others-on-fail"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3"
+  }
+}

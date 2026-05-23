@@ -1,0 +1,24 @@
+{
+  "name": "agents",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "setup-circle": "node --env-file=../../.env --experimental-strip-types src/setup-circle.ts",
+    "setup":     "node --env-file=../../.env --experimental-strip-types src/setup-entity-secret.ts",
+    "provision": "node --env-file=../../.env --experimental-strip-types src/provision.ts",
+    "merchants": "node --env-file=../../.env --experimental-strip-types src/merchants.ts",
+    "buyers": "node --env-file=../../.env --experimental-strip-types src/buyers.ts",
+    "dev": "node --env-file=../../.env --experimental-strip-types src/merchants.ts"
+  },
+  "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^10.3.1",
+    "@hono/node-server": "^1.13.7",
+    "@repute/sdk": "workspace:*",
+    "dotenv": "^16.4.7",
+    "hono": "^4.7.4",
+    "viem": "^2.21.54"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

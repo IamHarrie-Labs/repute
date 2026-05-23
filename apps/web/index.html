@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1440" />
+<title>Repute · Trust Layer for Agent Commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<!-- Mock data (used as fallback when API is unreachable) -->
+<script src="data.js"></script>
+
+<!-- Real API integration layer -->
+<script src="api.js"></script>
+
+<!-- Design components — copied verbatim from Claude Design output -->
+<script type="text/babel" src="components/shared.jsx"></script>
+<script type="text/babel" src="components/shell.jsx"></script>
+<script type="text/babel" src="components/feed.jsx"></script>
+<script type="text/babel" src="components/leaderboard.jsx"></script>
+<script type="text/babel" src="components/merchant.jsx"></script>
+<script type="text/babel" src="components/alerts.jsx"></script>
+<script type="text/babel" src="components/api-explorer.jsx"></script>
+<script type="text/babel" src="components/mobile.jsx"></script>
+<script type="text/babel" src="components/battle.jsx"></script>
+<script type="text/babel" src="components/docs.jsx"></script>
+
+<!-- App entry — wires real data into the design -->
+<script type="text/babel" src="app.jsx"></script>
+
+</body>
+</html>
