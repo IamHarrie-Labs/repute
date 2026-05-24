@@ -1,0 +1,41 @@
+# ── Repute · Railway Configuration ───────────────────────────────────────────
+# Docs: https://docs.railway.com/reference/railway-toml
+#
+# Deploy steps:
+#   1. Push this repo to GitHub (already done: github.com/IamHarrie-Labs/repute)
+#   2. Go to railway.app → New Project → Deploy from GitHub repo
+#   3. Select this repo — Railway auto-detects Dockerfile.railway
+#   4. Add a Volume in the dashboard: mount path = /data
+#   5. Set Variables (see below)
+#   6. Copy the generated URL → paste into Vercel as REPUTE_API_URL
+# ─────────────────────────────────────────────────────────────────────────────
+
+[build]
+builder            = "dockerfile"
+dockerfilePath     = "Dockerfile.railway"
+
+[deploy]
+startCommand          = "/bin/sh start-backend.sh"
+healthcheckPath       = "/health"
+healthcheckTimeout    = 30
+restartPolicyType     = "on_failure"
+restartPolicyMaxRetries = 5
+
+# ── Required environment variables ───────────────────────────────────────────
+# Set these in the Railway dashboard under Variables:
+#
+#   DATA_DIR          = /data              (matches the Volume mount path)
+#   DEMO_MODE         = true               (no real USDC; set false for live)
+#   INDEXER_MODE      = simulate           (or "arc" for live Arc testnet)
+#   API_PORT          = 3001               (Railway overrides with PORT anyway)
+#
+# For live Arc testnet (INDEXER_MODE=arc):
+#   ARC_RPC_URL       = https://rpc.testnet.arc-node.thecanteenapp.com/v1/KEY
+#
+# For live agents (RUN_AGENTS=true):
+#   CIRCLE_API_KEY    = your Circle key
+#   CIRCLE_ENTITY_SECRET = your entity secret
+#   MERCHANT_1_PK    = 0x...  (and MERCHANT_1_ADDRESS through MERCHANT_6_*)
+#   BUYER_NAIVE_PK   = 0x...
+#   BUYER_REPUTE_PK  = 0x...
+# ─────────────────────────────────────────────────────────────────────────────

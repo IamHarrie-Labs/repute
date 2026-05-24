@@ -3,7 +3,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const DB_PATH = path.resolve(__dirname, "../../../data/receipt-layer.db");
+export const DB_PATH = process.env.DATA_DIR
+  ? path.join(process.env.DATA_DIR, "receipt-layer.db")
+  : path.resolve(__dirname, "../../../data/receipt-layer.db");
 
 export function openDb() {
   const db = new DatabaseSync(DB_PATH);

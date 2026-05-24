@@ -4,7 +4,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = path.resolve(__dirname, "../../../data/receipt-layer.db");
+const DB_PATH = process.env.DATA_DIR
+  ? path.join(process.env.DATA_DIR, "receipt-layer.db")
+  : path.resolve(__dirname, "../../../data/receipt-layer.db");
 
 const db = new DatabaseSync(DB_PATH);
 // WAL is already set by the indexer and persists; just set timeout

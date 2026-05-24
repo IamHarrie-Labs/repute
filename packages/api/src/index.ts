@@ -8,7 +8,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = path.resolve(__dirname, "../../../data/receipt-layer.db");
+const DB_PATH = process.env.DATA_DIR
+  ? path.join(process.env.DATA_DIR, "receipt-layer.db")
+  : path.resolve(__dirname, "../../../data/receipt-layer.db");
 
 const db = new DatabaseSync(DB_PATH);
 db.exec("PRAGMA journal_mode = WAL");
@@ -545,6 +547,6 @@ async function fireWebhook(hook: any, event: string, payload: any, now: number, 
   }
 }
 
-const PORT = Number(process.env.API_PORT ?? 3001);
+const PORT = Number(process.env.PORT ?? process.env.API_PORT ?? 3001);
 serve({ fetch: app.fetch, port: PORT });
-console.log(`[api] Receipt Layer running on http://localhost:${PORT}`);
+console.log(`[api] Repute API running on http://localhost:${PORT}`);

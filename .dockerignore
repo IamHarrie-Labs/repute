@@ -1,0 +1,14 @@
+node_modules
+apps/
+data/
+*.db
+*.db-shm
+*.db-wal
+*.dat
+*.log
+.env
+.env.*
+.vercel
+.git
+dist/
+.turbo/
