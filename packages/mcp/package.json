@@ -1,0 +1,22 @@
+{
+  "name": "@repute/mcp",
+  "version": "0.4.1",
+  "description": "MCP server — Repute trust tools for Claude Code and agent frameworks",
+  "type": "module",
+  "bin": {
+    "repute-mcp": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "node --env-file=../../.env --experimental-strip-types src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["mcp", "arc", "trust", "reputation", "agent", "usdc", "x402"],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@repute/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
