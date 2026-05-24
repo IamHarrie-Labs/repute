@@ -981,35 +981,119 @@ button { font-family: inherit; }
         </div>
       </div>
 
-      <div class="hero-panel">
-        <div class="hero-panel-h">
-          <span>GET /merchant/:addr  ·  Repute API</span>
-          <span class="right"><span>200 OK</span><span>142ms</span><span class="ok">● live</span></span>
-        </div>
-        <div class="code">
-<span class="c">// ReputeAgent — trust-routed buyer (buyers.ts)</span>
-<span class="k">const</span> <span class="b">res</span> <span class="p">=</span> <span class="k">await</span> fetch<span class="p">(</span><span class="s">`${API}/merchant/${addr}`</span><span class="p">);</span>
-<span class="k">const</span> <span class="b">m</span>   <span class="p">=</span> <span class="k">await</span> res<span class="p">.</span>json<span class="p">();</span>
+      <!-- Merchant Trust Profile Card -->
+      <div class="hero-panel" style="font-family: var(--font-mono); display: flex; flex-direction: column;">
 
-<span class="p">{</span>
-  <span class="b">"name"</span><span class="p">:</span>         <span class="s">"PriceFeed Pro"</span><span class="p">,</span>
-  <span class="b">"category"</span><span class="p">:</span>     <span class="s">"Oracle"</span><span class="p">,</span>
-  <span class="h"><span class="b">"trust_score"</span><span class="p">:</span>  <span class="n">99</span><span class="p">,</span>
-  <span class="b">"reliability_pct"</span><span class="p">:</span> <span class="n">99.2</span><span class="p">,</span></span>
-  <span class="b">"avg_latency_ms"</span><span class="p">:</span> <span class="n">87</span><span class="p">,</span>
-  <span class="b">"fraud_flag"</span><span class="p">:</span>   <span class="k">null</span><span class="p">,</span>
-  <span class="b">"price_per_call"</span><span class="p">:</span> <span class="n">0.0003</span>
-<span class="p">}</span>
+        <!-- Header bar -->
+        <div class="hero-panel-h" style="border-left: 2px solid var(--accent); padding-left: 12px;">
+          <span style="display:flex;align-items:center;gap:10px;">
+            <span style="color:var(--accent);font-size:9px;">■</span>
+            <span>MERCHANT TRUST PROFILE</span>
+            <span style="color:var(--text-4);">REPUTE.SCORE/<span style="color:var(--text-2)">0X4F26_59CA</span></span>
+          </span>
+          <span class="right">
+            <span class="ok">● LIVE</span>
+            <span>142MS</span>
+          </span>
+        </div>
 
-<span class="c">// Pay via Circle Developer-Controlled Wallet</span>
-<span class="k">if</span> <span class="p">(</span>m<span class="p">.</span>trust_score <span class="p">&gt;</span> <span class="n">75</span><span class="p">)</span> <span class="k">await</span> circleTransfer<span class="p">(</span>walletId<span class="p">,</span> addr<span class="p">);</span>
+        <!-- Merchant identity row -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border);">
+          <!-- Pixelated avatar -->
+          <div style="width:52px;height:52px;flex-shrink:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:1px;background:var(--bg-2);border:1px solid var(--border);padding:3px;">
+            <div style="background:var(--accent);grid-column:1/3;grid-row:1/3;"></div>
+            <div style="background:var(--bg-0);"></div>
+            <div style="background:var(--accent);grid-column:5/7;grid-row:1/3;"></div>
+            <div style="background:var(--accent);grid-column:2;grid-row:3;"></div>
+            <div style="background:var(--accent);grid-column:4;grid-row:3;"></div>
+            <div style="background:var(--accent);grid-column:6;grid-row:3;"></div>
+            <div style="background:var(--bg-0);grid-column:1/4;grid-row:4;"></div>
+            <div style="background:var(--accent);grid-column:4;grid-row:4;"></div>
+            <div style="background:var(--bg-0);grid-column:5/8;grid-row:4;"></div>
+            <div style="background:var(--accent);grid-column:1/3;grid-row:5/7;"></div>
+            <div style="background:var(--bg-0);grid-column:3;grid-row:5;"></div>
+            <div style="background:var(--accent);grid-column:4;grid-row:5;"></div>
+            <div style="background:var(--bg-0);grid-column:5;grid-row:5;"></div>
+            <div style="background:var(--accent);grid-column:6/8;grid-row:5/7;"></div>
+            <div style="background:var(--accent);grid-column:3/6;grid-row:6;"></div>
+          </div>
+          <!-- Name + meta -->
+          <div style="min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:var(--text-0);letter-spacing:0.01em;margin-bottom:3px;font-family:var(--font-sans);">oracle.pricefeed.eth</div>
+            <div style="font-size:10px;color:var(--text-3);letter-spacing:0.06em;margin-bottom:8px;">0x4f26_59ca &nbsp;·&nbsp; oracle</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:9px;letter-spacing:0.12em;color:var(--accent);border:1px solid var(--accent);padding:2px 8px;">■ PLATINUM</span>
+              <span style="font-size:9px;color:var(--text-4);letter-spacing:0.08em;">SINCE 2025-08</span>
+            </div>
+          </div>
         </div>
-        <div class="hero-panel-foot">
-          <div class="stat"><span class="lbl">wallet</span><span class="v">Circle</span></div>
-          <div class="stat"><span class="lbl">latency</span><span class="v">142ms</span></div>
-          <div class="stat"><span class="lbl">chain</span><span class="v">Arc</span></div>
-          <div class="stat"><span class="lbl">verdict</span><span class="v accent">SAFE</span></div>
+
+        <!-- Score block -->
+        <div style="padding:18px 18px 14px;border-bottom:1px solid var(--border);">
+          <div style="font-size:9px;color:var(--text-4);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;">VERDICT &nbsp;·&nbsp; THIS BLOCK</div>
+          <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:10px;">
+            <span style="font-size:56px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-0.03em;font-family:var(--font-sans);">98</span>
+            <span style="font-size:16px;color:var(--text-3);margin-bottom:10px;font-family:var(--font-sans);">/ 100</span>
+            <span style="font-size:16px;font-weight:600;color:var(--accent);margin-bottom:10px;letter-spacing:0.04em;font-family:var(--font-sans);">SAFE TO PAY</span>
+          </div>
+          <!-- Score bar -->
+          <div style="height:3px;background:var(--bg-2);position:relative;border:1px solid var(--border);">
+            <div style="position:absolute;top:0;left:0;bottom:0;width:98%;background:var(--accent);"></div>
+          </div>
         </div>
+
+        <!-- Sub-scores grid -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--border);">
+          <div style="padding:10px 0 10px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;">DR</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-0);font-family:var(--font-sans);margin-bottom:5px;">100</div>
+            <div style="height:2px;background:var(--accent);width:100%;"></div>
+          </div>
+          <div style="padding:10px 0 10px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;">SP</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-0);font-family:var(--font-sans);margin-bottom:5px;">96</div>
+            <div style="height:2px;background:var(--accent);width:96%;"></div>
+          </div>
+          <div style="padding:10px 0 10px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;">PP</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-0);font-family:var(--font-sans);margin-bottom:5px;">94.1</div>
+            <div style="height:2px;background:var(--accent);width:94%;"></div>
+          </div>
+          <div style="padding:10px 0 10px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;">SH</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-0);font-family:var(--font-sans);margin-bottom:5px;">98</div>
+            <div style="height:2px;background:var(--accent);width:98%;"></div>
+          </div>
+          <div style="padding:10px 0 10px 14px;">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;">UP</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-0);font-family:var(--font-sans);margin-bottom:5px;">99</div>
+            <div style="height:2px;background:var(--accent);width:99%;"></div>
+          </div>
+        </div>
+
+        <!-- Bottom stats bar -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;border-bottom:none;padding:12px 0 0;">
+          <div style="padding:0 0 12px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;text-transform:uppercase;">COST</div>
+            <div style="font-size:12px;color:var(--text-0);font-family:var(--font-sans);">$0.0001</div>
+          </div>
+          <div style="padding:0 0 12px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;text-transform:uppercase;">LATENCY</div>
+            <div style="font-size:12px;color:var(--text-0);font-family:var(--font-sans);">142ms</div>
+          </div>
+          <div style="padding:0 0 12px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;text-transform:uppercase;">FLAGS</div>
+            <div style="font-size:12px;color:var(--text-0);font-family:var(--font-sans);">none</div>
+          </div>
+          <div style="padding:0 0 12px 14px;border-right:1px solid var(--border);">
+            <div style="font-size:9px;color:var(--text-4);letter-spacing:0.1em;margin-bottom:4px;text-transform:uppercase;">VERDICT</div>
+            <div style="font-size:12px;color:var(--accent);font-family:var(--font-sans);font-weight:600;">SAFE</div>
+          </div>
+          <div style="padding:0 14px 12px;display:flex;align-items:flex-end;">
+            <span style="font-size:9px;color:var(--text-4);letter-spacing:0.08em;white-space:nowrap;">V0.4.1 &nbsp;·&nbsp; ARC-MAINNET &nbsp;→</span>
+          </div>
+        </div>
+
       </div>
 
     </div>
