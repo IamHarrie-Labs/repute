@@ -106,6 +106,10 @@ const ENDPOINT_BREAKDOWN = [
   { ep: '/v1/historical', calls: 1820, fail: 0.3, lat: 142, share: 6 },
 ];
 
+// Seed window.MERCHANTS immediately with demo data so leaderboard/feed
+// render something useful before api.js finishes its first fetch.
+window.MERCHANTS = MERCHANTS;
+
 Object.assign(window, {
   MERCHANTS, DEMO_MERCHANTS, ENDPOINTS, ALERTS, FRAUD_TRAIL, INCIDENTS, ENDPOINT_BREAKDOWN,
   rand, pick, tsFmt, genTx, seedFeed,

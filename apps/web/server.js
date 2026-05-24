@@ -22,8 +22,8 @@ createServer((req, res) => {
   let pathname = req.url.split("?")[0];
 
   // Route / → landing page, /app → dashboard
-  if (pathname === "/") pathname = "/landing.html";
-  else if (pathname === "/app" || pathname === "/app/") pathname = "/index.html";
+  if (pathname === "/" || pathname === "/index.html") pathname = "/index.html";
+  else if (pathname === "/app" || pathname === "/app/" || pathname === "/dashboard") pathname = "/dashboard.html";
 
   const filePath = join(__dirname, pathname);
   const ext = extname(filePath);

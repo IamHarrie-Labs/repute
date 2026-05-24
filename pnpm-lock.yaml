@@ -61,6 +61,16 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  packages/cli:
+    dependencies:
+      '@repute/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
   packages/indexer:
     dependencies:
       dotenv:

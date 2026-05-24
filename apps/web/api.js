@@ -276,18 +276,80 @@ function disconnectSSE() {
   if (_sseConn) { _sseConn.close(); _sseConn = null; }
 }
 
+// ── Demo mode — full offline fallback for Vercel / no-backend environments ───
+function seedDemoState() {
+  const demo = window.DEMO_MERCHANTS || [];
+  window.REPUTE_STATE.merchants = demo;
+  window.MERCHANTS = demo;
+
+  // Realistic demo stats
+  window.REPUTE_STATE.stats = {
+    payments: 8402,
+    merchants: demo.length,
+    vol24: 4.211,
+    failRate: 3.12,
+    activeFraud: 2,
+    block: 12840219 + Math.floor(Date.now() / 1000),
+    pm: 12.4,
+    usdcSaved: 0.0139,
+  };
+
+  // Seed live feed with demo transactions
+  const demoFeed = typeof seedFeed === 'function' ? seedFeed(50) : [];
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('repute:feed-snapshot', { detail: demoFeed }));
+  }, 100);
+
+  // Demo fraud alerts
+  window.REPUTE_STATE.alerts = {
+    red: [{
+      id: 'demo-ghost',
+      merchant: { addr: '0xA891cC...3f0E', _fullAddr: '0xA891cC3f0E', name: 'ShadowAPI', id: 7 },
+      type: 'GHOST',
+      desc: 'Accepted payment 847 times, delivered nothing. All calls fail with HTTP 200 but empty body.',
+      firstSeen: '14h ago', evidence: 847, lost: 0.0254, severity: 'critical',
+    }],
+    amber: [{
+      id: 'demo-flaky',
+      merchant: { addr: '0x3c00FF...ba12', _fullAddr: '0x3c00FFba12', name: 'FlakyNode', id: 8 },
+      type: 'FLAKY',
+      desc: 'Delivery rate collapsed from 92% to 42% over 48h. Likely degraded node infrastructure.',
+      firstSeen: '3d ago', evidence: 31, lost: 0.0082, severity: 'medium',
+    }],
+    green: [],
+  };
+  window.ALERTS = window.REPUTE_STATE.alerts;
+
+  window.dispatchEvent(new CustomEvent('repute:stats'));
+  window.dispatchEvent(new CustomEvent('repute:merchants'));
+  window.dispatchEvent(new CustomEvent('repute:alerts'));
+
+  console.log('[repute] offline demo mode — showing realistic demo data');
+}
+
 // ── Bootstrap ────────────────────────────────────────────────────────────────
-// Load data in order: leaderboard first (needed for merchant lookups in feed)
 ;(async () => {
+  if (!API) {
+    // No backend available — seed everything from demo data immediately
+    seedDemoState();
+    return;
+  }
+
+  // Live backend — load in order: leaderboard first for merchant lookups
   await fetchLeaderboard();
   await Promise.all([fetchStats(), fetchIncidents(), fetchBattle()]);
   fetchRecentFeed();
-  // Poll
+  // Poll for live updates
   setInterval(fetchStats, 5000);
   setInterval(fetchLeaderboard, 30000);
   setInterval(fetchIncidents, 15000);
   setInterval(fetchBattle, 10000);
 })();
 
-// Expose for app.jsx
-Object.assign(window, { connectSSE, disconnectSSE, mapPayment, REPUTE_STATE: window.REPUTE_STATE });
+// Expose for components
+Object.assign(window, {
+  connectSSE, disconnectSSE, mapPayment,
+  REPUTE_STATE: window.REPUTE_STATE,
+  REPUTE_API: API,          // expose resolved URL
+  API_BASE: API,            // battle.jsx uses window.API_BASE
+});

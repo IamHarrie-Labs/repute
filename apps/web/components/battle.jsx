@@ -1,16 +1,41 @@
 /* Live Benchmark — NaiveAgent vs ReputeAgent live comparison panel */
 
+// Static demo data shown when backend is offline (Vercel / no agents running)
+const DEMO_BATTLE = {
+  naive: {
+    address: '0xNaive000000000000000000000000000000000000',
+    total_calls: 100, successes: 69, failures: 31,
+    success_rate: 69.0, total_spent: 0.0450, wasted_usdc: 0.0142, avg_latency: 412,
+  },
+  repute: {
+    address: '0xRepute00000000000000000000000000000000000',
+    total_calls: 100, successes: 98, failures: 2,
+    success_rate: 98.1, total_spent: 0.0410, wasted_usdc: 0.0003, avg_latency: 127,
+  },
+  recent_calls: [
+    { id:1, buyer:'0xRepute000', merchant:'0x15481D7b2F', merchant_name:'PriceFeed Pro', delivered:1, amount_usdc:0.0003, latency_ms:87,  trust_score:99 },
+    { id:2, buyer:'0xNaive0000', merchant:'0xA891cC3f0E', merchant_name:'ShadowAPI',     delivered:0, amount_usdc:0.0003, latency_ms:null, trust_score:12 },
+    { id:3, buyer:'0xRepute000', merchant:'0x8aF3c14d9A', merchant_name:'ChainOracle',   delivered:1, amount_usdc:0.0002, latency_ms:121, trust_score:94 },
+    { id:4, buyer:'0xNaive0000', merchant:'0x3c00FFba12', merchant_name:'FlakyNode',     delivered:0, amount_usdc:0.0002, latency_ms:740, trust_score:31 },
+    { id:5, buyer:'0xRepute000', merchant:'0x2b91eEc302', merchant_name:'Inference Node',delivered:1, amount_usdc:0.0005, latency_ms:201, trust_score:88 },
+    { id:6, buyer:'0xNaive0000', merchant:'0x15481D7b2F', merchant_name:'PriceFeed Pro', delivered:1, amount_usdc:0.0003, latency_ms:91,  trust_score:99 },
+  ],
+  updated_at: Date.now(),
+};
+
 function BattlePanel() {
-  const [data, setData] = useState(null);
+  const isOffline = !window.API_BASE;
+  const [data, setData] = useState(isOffline ? DEMO_BATTLE : null);
   const [error, setError] = useState(null);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    if (isOffline) return; // use static demo data, no polling needed
     let alive = true;
 
-    async function fetchBattle() {
+    async function loadBattle() {
       try {
-        const res = await fetch(`${window.API_BASE || 'http://localhost:3001'}/battle`);
+        const res = await fetch(`${window.API_BASE}/battle`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (alive) { setData(json); setError(null); }
@@ -19,9 +44,9 @@ function BattlePanel() {
       }
     }
 
-    fetchBattle();
+    loadBattle();
     const id = setInterval(() => {
-      fetchBattle();
+      loadBattle();
       setTick(t => t + 1);
     }, 4000);
 
@@ -48,8 +73,8 @@ function BattlePanel() {
           <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--text-0)' }}>
             Live Benchmark
           </h2>
-          <span style={{ fontSize: 10, color: 'var(--accent)', background: 'color-mix(in srgb, var(--accent) 15%, transparent)', padding: '2px 8px', letterSpacing: '0.08em' }}>
-            LIVE
+          <span style={{ fontSize: 10, color: isOffline ? 'var(--amber)' : 'var(--accent)', background: 'color-mix(in srgb, var(--accent) 15%, transparent)', padding: '2px 8px', letterSpacing: '0.08em' }}>
+            {isOffline ? 'DEMO' : 'LIVE'}
           </span>
         </div>
         <p style={{ margin: 0, color: 'var(--text-2)', fontSize: 13 }}>
@@ -113,7 +138,7 @@ function BattlePanel() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 320, overflowY: 'auto' }}>
           {recent.length === 0 && (
             <div style={{ color: 'var(--text-4)', fontSize: 11, fontFamily: 'Poppins, system-ui, sans-serif', padding: '20px 0', textAlign: 'center' }}>
-              {error ? `Error: ${error}` : 'Start agents to see live calls here…'}
+              {error ? `API offline — run pnpm start locally to see live calls` : 'Waiting for agent calls…'}
             </div>
           )}
           {recent.map((call, i) => {
