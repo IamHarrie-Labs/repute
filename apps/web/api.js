@@ -5,7 +5,11 @@
  * Falls back to mock data if the API is unreachable.
  */
 
-const API = window.REPUTE_API || 'http://localhost:3001';
+// In production (non-localhost), try a relative /api proxy first; fallback to nothing.
+// When running locally the full backend is at localhost:3001.
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const API = window.REPUTE_API
+  || (IS_LOCAL ? 'http://localhost:3001' : null);
 
 // ── Data mappers ────────────────────────────────────────────────────────────
 
@@ -166,6 +170,7 @@ window._MOCK_ALERTS = window.ALERTS;
 // ── Fetch functions ──────────────────────────────────────────────────────────
 
 async function fetchStats() {
+  if (!API) return;
   try {
     const r = await fetch(`${API}/stats`);
     if (!r.ok) return;
@@ -185,6 +190,7 @@ async function fetchStats() {
 }
 
 async function fetchLeaderboard() {
+  if (!API) return;
   try {
     const r = await fetch(`${API}/leaderboard`);
     if (!r.ok) return;
@@ -198,6 +204,7 @@ async function fetchLeaderboard() {
 }
 
 async function fetchIncidents() {
+  if (!API) return;
   try {
     const r = await fetch(`${API}/incidents`);
     if (!r.ok) return;
@@ -210,6 +217,7 @@ async function fetchIncidents() {
 }
 
 async function fetchBattle() {
+  if (!API) return;
   try {
     const r = await fetch(`${API}/battle`);
     if (!r.ok) return;
@@ -228,6 +236,7 @@ async function fetchBattle() {
 }
 
 async function fetchRecentFeed() {
+  if (!API) return;
   try {
     const r = await fetch(`${API}/feed?limit=80`);
     if (!r.ok) return;
@@ -242,6 +251,7 @@ async function fetchRecentFeed() {
 // SSE stream — emits 'repute:feed-tx' events for live rows
 let _sseConn = null;
 function connectSSE(onTx) {
+  if (!API) return;
   if (_sseConn) { _sseConn.close(); _sseConn = null; }
   try {
     const es = new EventSource(`${API}/feed/stream`);

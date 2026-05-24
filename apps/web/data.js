@@ -1,7 +1,19 @@
-/* data.js — utility functions only. Real merchant + alert data comes from api.js. */
+/* data.js — utility functions + demo fallback data. Real data comes from api.js. */
 
-// MERCHANTS starts empty — populated by api.js after /leaderboard fetch
-let MERCHANTS = [];
+// Demo fallback merchants — used when the API is offline (e.g. Vercel preview)
+const DEMO_MERCHANTS = [
+  { id:1, addr:'0x15481D...7b2F', _fullAddr:'0x15481D7b2F', name:'PriceFeed Pro',   cat:'Oracle',  score:99, rel:99.2, lat:87,  price:0.0003, vol:18.42, trend:[82,85,88,90,93,96,98,99], status:'top' },
+  { id:2, addr:'0x8aF3c1...4d9A', _fullAddr:'0x8aF3c14d9A', name:'ChainOracle',     cat:'Oracle',  score:94, rel:97.4, lat:121, price:0.0002, vol:11.20, trend:[78,80,84,87,90,91,93,94] },
+  { id:3, addr:'0x2b91eE...c302', _fullAddr:'0x2b91eEc302', name:'Inference Node',  cat:'AI',      score:88, rel:95.1, lat:201, price:0.0005, vol:8.91,  trend:[70,72,76,80,83,85,87,88] },
+  { id:4, addr:'0xf04Da0...81bB', _fullAddr:'0xf04Da081bB', name:'StoragePeer',     cat:'Storage', score:82, rel:93.8, lat:178, price:0.0001, vol:5.44,  trend:[65,68,71,74,77,79,81,82] },
+  { id:5, addr:'0x77b2Ac...990C', _fullAddr:'0x77b2Ac990C', name:'DataRelay',        cat:'Data',    score:76, rel:90.2, lat:245, price:0.0002, vol:3.12,  trend:[60,62,65,67,70,72,74,76] },
+  { id:6, addr:'0xd3F19b...e44D', _fullAddr:'0xd3F19be44D', name:'ComputeGrid',      cat:'Compute', score:71, rel:88.6, lat:312, price:0.0004, vol:2.80,  trend:[55,58,60,63,66,68,70,71] },
+  { id:7, addr:'0xA891cC...3f0E', _fullAddr:'0xA891cC3f0E', name:'ShadowAPI',        cat:'Data',    score:12, rel:18.4, lat:890, price:0.0003, vol:0.84,  trend:[55,40,30,25,18,15,13,12], scam:'ghost' },
+  { id:8, addr:'0x3c00FF...ba12', _fullAddr:'0x3c00FFba12', name:'FlakyNode',         cat:'Oracle',  score:31, rel:42.1, lat:740, price:0.0002, vol:1.20,  trend:[68,60,52,45,40,36,33,31], scam:'flaky' },
+];
+
+// MERCHANTS — starts with demo data, overwritten by api.js when live
+let MERCHANTS = [...DEMO_MERCHANTS];
 
 const ENDPOINTS = [
   '/v1/price-feed', '/v1/embed', '/v1/oracle/eth-usd', '/v2/inference',
@@ -46,14 +58,16 @@ function genTx(merchant, dt) {
 
 function seedFeed(n) {
   const out = [];
+  const pool = MERCHANTS.length ? MERCHANTS : DEMO_MERCHANTS;
   let t = new Date();
   for (let i = 0; i < n; i++) {
-    // skew toward higher-volume merchants
+    // skew toward higher-volume merchants (first 60%)
+    const topN = Math.max(1, Math.floor(pool.length * 0.6));
     const r = Math.random();
     let m;
-    if (r < 0.45) m = MERCHANTS[Math.floor(Math.random() * 6)];
-    else if (r < 0.85) m = MERCHANTS[6 + Math.floor(Math.random() * 10)];
-    else m = MERCHANTS[16 + Math.floor(Math.random() * 4)];
+    if (r < 0.55) m = pool[Math.floor(Math.random() * topN)];
+    else m = pool[Math.floor(Math.random() * pool.length)];
+    if (!m) m = pool[0];
     t = new Date(t.getTime() - Math.round(rand(80, 800)));
     out.push(genTx(m, t));
   }
@@ -93,7 +107,7 @@ const ENDPOINT_BREAKDOWN = [
 ];
 
 Object.assign(window, {
-  MERCHANTS, ENDPOINTS, ALERTS, FRAUD_TRAIL, INCIDENTS, ENDPOINT_BREAKDOWN,
+  MERCHANTS, DEMO_MERCHANTS, ENDPOINTS, ALERTS, FRAUD_TRAIL, INCIDENTS, ENDPOINT_BREAKDOWN,
   rand, pick, tsFmt, genTx, seedFeed,
 });
 
