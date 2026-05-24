@@ -1209,92 +1209,156 @@ drift score · <span class="h">0.84</span> · 60% of calls
 <section class="section" id="integrate">
   <div class="container">
     <span class="section-tag"><span class="bar"></span><span class="num">04</span>Integrate</span>
-    <h2 class="h2">Works with any agent <span style="color: var(--text-3)">on any Arc protocol.</span></h2>
-    <p class="lead">Query trust scores over HTTP, no SDK required. Payments settle via Circle Developer-Controlled Wallets or any x402-compatible wallet. Your agent keeps its own key; Repute just reads the receipts.</p>
+    <h2 class="h2">Three ways to integrate. <span style="color: var(--text-3)">Pick yours.</span></h2>
+    <p class="lead">SDK for agent builders. CLI for operators and scripts. MCP for Claude Code — tools appear automatically, no glue code. All three sit on the same REST API underneath.</p>
 
-    <div class="code-pane" style="margin-top: 32px;">
-      <div class="tabs" role="tablist">
-        <span class="tab active" data-tab="ts">TypeScript</span>
-        <span class="tab" data-tab="py">Python</span>
-        <span class="tab" data-tab="rs">Rust</span>
-        <span class="tab" data-tab="curl">cURL</span>
-        <span style="margin-left: auto; display: inline-flex; align-items: center; padding: 0 18px; font-family: var(--font-sans); font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase;">
-          npm i @repute/sdk
-        </span>
+    <!-- Integration tier cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;margin-bottom:32px;">
+
+      <div style="background:var(--panel);border:1px solid var(--border);padding:20px 22px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;letter-spacing:0.1em;color:var(--accent);font-weight:600;">SDK</span>
+          <span style="font-size:10px;color:var(--text-4);letter-spacing:0.06em;">TypeScript</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-1);margin-bottom:10px;line-height:1.6;">For agent builders. One import, full types, verdict in one line.</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);background:var(--bg-1);padding:8px 12px;border:1px solid var(--border);">npm i @repute/sdk</div>
       </div>
 
-      <div class="tab-panel active" data-panel="ts">
-        <pre><span style="color: var(--text-3)">// TypeScript · ReputeAgent pattern (buyers.ts)</span>
-<span style="color: var(--violet)">import</span> { circleTransferUsdc } <span style="color: var(--violet)">from</span> <span style="color: var(--accent)">'./arc.ts'</span>;
-
-<span style="color: var(--text-3)">// 1. Query trust score from Repute API</span>
-<span style="color: var(--violet)">const</span> res  <span style="color: var(--text-2)">=</span> <span style="color: var(--violet)">await</span> fetch(<span style="color: var(--accent)">`${REPUTE_API}/merchant/${merchantAddr}`</span>);
-<span style="color: var(--violet)">const</span> info <span style="color: var(--text-2)">=</span> <span style="color: var(--violet)">await</span> res.json();
-
-<span style="color: var(--text-3)">// 2. Route only to trusted merchants</span>
-<span style="color: var(--violet)">if</span> (info.trust_score <span style="color: var(--text-2)">&gt;</span> <span style="color: var(--amber)">75</span> <span style="color: var(--text-2)">&amp;&amp;</span> <span style="color: var(--text-2)">!</span>info.fraud_flag) {
-  <span style="color: var(--text-3)">// 3. Pay via Circle Developer-Controlled Wallet</span>
-  <span style="color: var(--violet)">const</span> txId <span style="color: var(--text-2)">=</span> <span style="color: var(--violet)">await</span> circleTransferUsdc(
-    process.env.CIRCLE_BUYER_WALLET_ID,
-    merchantAddr,
-    info.price_per_call   <span style="color: var(--text-3)">// e.g. 0.0003 USDC</span>
-  );
-} <span style="color: var(--violet)">else</span> {
-  console.warn(<span style="color: var(--accent)">'Skipping low-trust merchant'</span>, info.trust_score);
-}</pre>
+      <div style="background:var(--panel);border:1px solid var(--border);padding:20px 22px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;letter-spacing:0.1em;color:var(--amber);font-weight:600;">CLI</span>
+          <span style="font-size:10px;color:var(--text-4);letter-spacing:0.06em;">Terminal / Scripts</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-1);margin-bottom:10px;line-height:1.6;">For operators and CI pipelines. No code needed, just run it.</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);background:var(--bg-1);padding:8px 12px;border:1px solid var(--border);">npx @repute/cli score 0x...</div>
       </div>
 
-      <div class="tab-panel" data-panel="py">
-        <pre><span style="color: var(--text-3)"># Python · repute v1.4</span>
-<span style="color: var(--violet)">from</span> repute <span style="color: var(--violet)">import</span> Repute
-
-<span style="color: var(--text-3)"># Query a merchant's full trust profile · $0.0001 USDC</span>
-rep <span style="color: var(--text-2)">=</span> Repute.score(<span style="color: var(--accent)">"0x7a3F...c91d"</span>)
-
-<span style="color: var(--violet)">if</span> rep.score <span style="color: var(--text-2)">&gt;</span> <span style="color: var(--amber)">75</span> <span style="color: var(--violet)">and</span> <span style="color: var(--violet)">not</span> rep.flags:
-    agent.x402.pay(
-        to<span style="color: var(--text-2)">=</span><span style="color: var(--accent)">"0x7a3F...c91d"</span>,
-        endpoint<span style="color: var(--text-2)">=</span><span style="color: var(--accent)">"/v1/price-feed"</span>,
-        max_price<span style="color: var(--text-2)">=</span><span style="color: var(--amber)">0.0010</span>,
-    )
-<span style="color: var(--violet)">else</span>:
-    agent.log.warn(<span style="color: var(--accent)">"Skipping low-trust merchant"</span>, rep)</pre>
+      <div style="background:var(--panel);border:1px solid var(--border);padding:20px 22px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;letter-spacing:0.1em;color:var(--violet);font-weight:600;">MCP</span>
+          <span style="font-size:10px;color:var(--text-4);letter-spacing:0.06em;">Claude Code</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-1);margin-bottom:10px;line-height:1.6;">For AI agents. Clone the repo, open in Claude Code, tools appear automatically.</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);background:var(--bg-1);padding:8px 12px;border:1px solid var(--border);">No install. Open repo in Claude Code.</div>
       </div>
 
-      <div class="tab-panel" data-panel="rs">
-        <pre><span style="color: var(--text-3)">// Rust · repute = "0.4"</span>
-<span style="color: var(--violet)">use</span> repute::{Repute, x402};
-
-<span style="color: var(--violet)">let</span> rep <span style="color: var(--text-2)">=</span> Repute::score(<span style="color: var(--accent)">"0x7a3F...c91d"</span>).<span style="color: var(--violet)">await</span><span style="color: var(--text-2)">?</span>;
-
-<span style="color: var(--violet)">if</span> rep.score <span style="color: var(--text-2)">&gt;</span> <span style="color: var(--amber)">75</span> <span style="color: var(--text-2)">&amp;&amp;</span> rep.flags.is_empty() {
-    agent.x402.pay(x402::Request {
-        to: <span style="color: var(--accent)">"0x7a3F...c91d"</span>.into(),
-        endpoint: <span style="color: var(--accent)">"/v1/price-feed"</span>.into(),
-        max_price: <span style="color: var(--amber)">0.0010</span>,
-    }).<span style="color: var(--violet)">await</span><span style="color: var(--text-2)">?</span>;
-}</pre>
-      </div>
-
-      <div class="tab-panel" data-panel="curl">
-        <pre><span style="color: var(--text-3)"># Query a merchant trust score</span>
-<span style="color: var(--cyan)">curl</span> http://localhost:3001/merchant/0x15481D7B...
-
-<span style="color: var(--text-3)"># → 200 OK · returns trust profile:</span>
-<span style="color: var(--text-2)">{</span>
-  <span style="color: var(--cyan)">"name"</span>:            <span style="color: var(--accent)">"PriceFeed Pro"</span>,
-  <span style="color: var(--cyan)">"trust_score"</span>:     <span style="color: var(--amber)">99</span>,
-  <span style="color: var(--cyan)">"reliability_pct"</span>: <span style="color: var(--amber)">99.2</span>,
-  <span style="color: var(--cyan)">"fraud_flag"</span>:      <span style="color: var(--violet)">null</span>,
-  <span style="color: var(--cyan)">"price_per_call"</span>:  <span style="color: var(--amber)">0.0003</span>
-<span style="color: var(--text-2)">}</span>
-
-<span style="color: var(--text-3)"># Get live stats</span>
-<span style="color: var(--cyan)">curl</span> http://localhost:3001/stats
-<span style="color: var(--text-3)"># → { total_indexed, merchant_count, vol_24h, active_alerts }</span></pre>
-      </div>
     </div>
 
+    <div class="code-pane">
+      <div class="tabs" role="tablist">
+        <span class="tab active" data-tab="sdk">SDK</span>
+        <span class="tab" data-tab="cli">CLI</span>
+        <span class="tab" data-tab="mcp">MCP</span>
+        <span class="tab" data-tab="api">REST API</span>
+        <span style="margin-left:auto;display:inline-flex;align-items:center;padding:0 18px;font-family:var(--font-sans);font-size:10px;color:var(--text-4);letter-spacing:0.08em;text-transform:uppercase;">@repute/sdk v0.4.1</span>
+      </div>
+
+      <!-- SDK -->
+      <div class="tab-panel active" data-panel="sdk">
+        <pre><span style="color:var(--text-3)">// 1. Install</span>
+<span style="color:var(--cyan)">npm</span> i @repute/sdk
+
+<span style="color:var(--text-3)">// 2. Query before every payment</span>
+<span style="color:var(--violet)">import</span> { Repute } <span style="color:var(--violet)">from</span> <span style="color:var(--accent)">'@repute/sdk'</span>;
+
+<span style="color:var(--violet)">const</span> repute <span style="color:var(--text-2)">=</span> <span style="color:var(--violet)">new</span> Repute({ baseUrl: <span style="color:var(--accent)">'https://repute.xyz'</span> });
+<span style="color:var(--violet)">const</span> score  <span style="color:var(--text-2)">=</span> <span style="color:var(--violet)">await</span> repute.score(<span style="color:var(--accent)">'0x15481D7B...'</span>);
+
+<span style="color:var(--violet)">if</span> (score.verdict <span style="color:var(--text-2)">===</span> <span style="color:var(--accent)">'SAFE_TO_PAY'</span>) {
+  <span style="color:var(--violet)">await</span> circleTransferUsdc(walletId, score.address, score.price_per_call);
+}
+
+<span style="color:var(--text-3)">// Pick from the full leaderboard — safe merchants only</span>
+<span style="color:var(--violet)">const</span> { merchants } <span style="color:var(--text-2)">=</span> <span style="color:var(--violet)">await</span> repute.leaderboard();
+<span style="color:var(--violet)">const</span> trusted <span style="color:var(--text-2)">=</span> merchants.filter(m <span style="color:var(--text-2)">=&gt;</span> m.trust_score <span style="color:var(--text-2)">&gt;</span> <span style="color:var(--amber)">75</span> <span style="color:var(--text-2)">&amp;&amp;</span> <span style="color:var(--text-2)">!</span>m.fraud_flag);
+
+<span style="color:var(--text-3)">// Subscribe to fraud alerts via webhook</span>
+<span style="color:var(--violet)">await</span> repute.subscribe(<span style="color:var(--accent)">'https://myagent.xyz/hooks'</span>, [<span style="color:var(--accent)">'fraud_flag'</span>]);</pre>
+      </div>
+
+      <!-- CLI -->
+      <div class="tab-panel" data-panel="cli">
+        <pre><span style="color:var(--text-3)"># No install needed — just npx</span>
+
+<span style="color:var(--text-3)"># Full trust profile for one merchant</span>
+<span style="color:var(--cyan)">npx</span> @repute/cli score 0x15481D7B...
+
+<span style="color:var(--text-3)"># Output:</span>
+<span style="color:var(--text-3)">#   PriceFeed Pro  0x15481D7B...</span>
+<span style="color:var(--text-3)">#   Verdict     SAFE_TO_PAY</span>
+<span style="color:var(--text-3)">#   Trust       ████████████████████  88/100</span>
+<span style="color:var(--text-3)">#   Reliability ████████████████████  99.1%</span>
+<span style="color:var(--text-3)">#   Fraud flag  none</span>
+
+<span style="color:var(--text-3)"># Safe merchants only, top 5</span>
+<span style="color:var(--cyan)">npx</span> @repute/cli board --safe --limit 5
+
+<span style="color:var(--text-3)"># Score multiple addresses at once</span>
+<span style="color:var(--cyan)">npx</span> @repute/cli batch 0xABC... 0xDEF... 0x123...
+
+<span style="color:var(--text-3)"># Network stats</span>
+<span style="color:var(--cyan)">npx</span> @repute/cli stats
+
+<span style="color:var(--text-3)"># Point at any Repute API instance</span>
+<span style="color:var(--cyan)">npx</span> @repute/cli score 0x... --api https://repute.xyz</pre>
+      </div>
+
+      <!-- MCP -->
+      <div class="tab-panel" data-panel="mcp">
+        <pre><span style="color:var(--text-3)">// Add to .claude/settings.json in your project</span>
+<span style="color:var(--text-2)">{</span>
+  <span style="color:var(--cyan)">"mcpServers"</span>: <span style="color:var(--text-2)">{</span>
+    <span style="color:var(--cyan)">"repute"</span>: <span style="color:var(--text-2)">{</span>
+      <span style="color:var(--cyan)">"command"</span>: <span style="color:var(--accent)">"node"</span>,
+      <span style="color:var(--cyan)">"args"</span>: [<span style="color:var(--accent)">"--experimental-strip-types"</span>, <span style="color:var(--accent)">"./packages/mcp/src/index.ts"</span>],
+      <span style="color:var(--cyan)">"env"</span>: { <span style="color:var(--cyan)">"REPUTE_API_URL"</span>: <span style="color:var(--accent)">"http://localhost:3001"</span> }
+    <span style="color:var(--text-2)">}</span>
+  <span style="color:var(--text-2)">}</span>
+<span style="color:var(--text-2)">}</span>
+
+<span style="color:var(--text-3)">// Claude can now call Repute tools natively — no glue code</span>
+<span style="color:var(--text-3)">// Available tools:</span>
+<span style="color:var(--text-3)">//   repute_score        — full verdict for one address</span>
+<span style="color:var(--text-3)">//   repute_batch        — score up to 20 addresses</span>
+<span style="color:var(--text-3)">//   repute_leaderboard  — sorted list, safe_only filter</span>
+<span style="color:var(--text-3)">//   repute_stats        — network totals</span>
+<span style="color:var(--text-3)">//   repute_feed         — recent indexed payments</span>
+<span style="color:var(--text-3)">//   repute_subscribe    — register fraud alert webhook</span>
+
+<span style="color:var(--text-3)">// Example — Claude routes payments automatically:</span>
+<span style="color:var(--text-3)">// "Pay the best merchant for price data right now"</span>
+<span style="color:var(--text-3)">// Claude: calls repute_leaderboard(safe_only: true)</span>
+<span style="color:var(--text-3)">//         picks top result, calls circleTransferUsdc()</span></pre>
+      </div>
+
+      <!-- REST API -->
+      <div class="tab-panel" data-panel="api">
+        <pre><span style="color:var(--text-3)"># Score a merchant (x402-gated · $0.0001 USDC in live mode)</span>
+<span style="color:var(--cyan)">curl</span> https://repute.xyz/score/0x15481D7B... \
+  -H <span style="color:var(--accent)">"X-Payment-Proof: &lt;tx-hash&gt;"</span>
+
+<span style="color:var(--text-3)"># Response</span>
+<span style="color:var(--text-2)">{</span>
+  <span style="color:var(--cyan)">"name"</span>:            <span style="color:var(--accent)">"PriceFeed Pro"</span>,
+  <span style="color:var(--cyan)">"trust_score"</span>:     <span style="color:var(--amber)">88</span>,
+  <span style="color:var(--cyan)">"verdict"</span>:         <span style="color:var(--accent)">"SAFE_TO_PAY"</span>,
+  <span style="color:var(--cyan)">"reliability_pct"</span>: <span style="color:var(--amber)">99.1</span>,
+  <span style="color:var(--cyan)">"fraud_flag"</span>:      <span style="color:var(--violet)">null</span>,
+  <span style="color:var(--cyan)">"price_per_call"</span>:  <span style="color:var(--amber)">0.0003</span>
+<span style="color:var(--text-2)">}</span>
+
+<span style="color:var(--text-3)"># Free endpoints (no payment required)</span>
+<span style="color:var(--cyan)">curl</span> https://repute.xyz/leaderboard
+<span style="color:var(--cyan)">curl</span> https://repute.xyz/stats
+<span style="color:var(--cyan)">curl</span> https://repute.xyz/feed?limit=20
+
+<span style="color:var(--text-3)"># Subscribe to fraud alerts</span>
+<span style="color:var(--cyan)">curl</span> -X POST https://repute.xyz/subscribe \
+  -H <span style="color:var(--accent)">"Content-Type: application/json"</span> \
+  -d <span style="color:var(--accent)">'{"url":"https://myagent.xyz/hooks","events":["fraud_flag"]}'</span></pre>
+      </div>
+
+    </div>
   </div>
 </section>
 

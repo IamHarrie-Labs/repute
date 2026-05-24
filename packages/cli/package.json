@@ -1,0 +1,21 @@
+{
+  "name": "@repute/cli",
+  "version": "0.4.1",
+  "description": "CLI — query Repute trust scores from the terminal",
+  "type": "module",
+  "bin": {
+    "repute": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "node --experimental-strip-types src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["repute", "cli", "arc", "trust", "reputation", "usdc", "x402"],
+  "license": "MIT",
+  "dependencies": {
+    "@repute/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
