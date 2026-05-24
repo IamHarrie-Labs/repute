@@ -240,7 +240,7 @@ es.onmessage = (e) => {
       </DocsSection>
 
       <div style={{ marginTop: 32, padding: '14px 16px', border: '1px solid var(--border)', background: 'var(--bg-1)', fontSize: 12, color: 'var(--text-3)' }}>
-        Running on Arc testnet · API at localhost:3001 · Dashboard at localhost:3000/app
+        Running on Arc testnet · API at localhost:3001 · Dashboard at localhost:3000/dashboard
       </div>
 
     </div>

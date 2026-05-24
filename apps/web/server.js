@@ -21,9 +21,10 @@ const MIME = {
 createServer((req, res) => {
   let pathname = req.url.split("?")[0];
 
-  // Route / → landing page, /app → dashboard
+  // Route / → landing page, /dashboard → dashboard
   if (pathname === "/" || pathname === "/index.html") pathname = "/index.html";
-  else if (pathname === "/app" || pathname === "/app/" || pathname === "/dashboard") pathname = "/dashboard.html";
+  else if (pathname === "/dashboard" || pathname === "/dashboard/") pathname = "/dashboard.html";
+  else if (pathname === "/docs") pathname = "/dashboard.html"; // docs is a tab inside the dashboard
 
   const filePath = join(__dirname, pathname);
   const ext = extname(filePath);
