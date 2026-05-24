@@ -24,7 +24,7 @@ function FeedFilterBar({ filter, setFilter, paused, setPaused }) {
   const cats = ['ALL', 'Data', 'Compute', 'AI', 'Oracle', 'Storage'];
   const statuses = ['ALL', 'OK', 'FAIL', 'SUSPECT'];
   return (
-    <div style={{display:'flex',alignItems:'center',padding:'8px 14px',borderBottom:'1px solid var(--border)',gap:24,background:'var(--bg-0)'}}>
+    <div style={{display:'flex',alignItems:'center',padding:'8px 14px 10px',borderBottom:'1px solid var(--border)',gap:24,background:'var(--bg-0)',flexWrap:'wrap'}}>
       <div style={{display:'flex',alignItems:'center',gap:8}}>
         <span className="mono" style={{fontSize:10,color:'var(--text-3)',letterSpacing:'0.08em'}}>CATEGORY</span>
         <div style={{display:'flex',gap:0,border:'1px solid var(--border)'}}>
@@ -88,22 +88,30 @@ function FeedFilterBar({ filter, setFilter, paused, setPaused }) {
 }
 
 function RightStatsPanel({ feed, stats }) {
-  // Re-render when alerts or merchants update
+  // Re-render when alerts, merchants, or battle state updates
   const [_v, forceUpdate] = useState(0);
   useEffect(() => {
     const h = () => forceUpdate(v => v + 1);
     window.addEventListener('repute:alerts', h);
     window.addEventListener('repute:merchants', h);
+    window.addEventListener('repute:battle', h);
     return () => {
       window.removeEventListener('repute:alerts', h);
       window.removeEventListener('repute:merchants', h);
+      window.removeEventListener('repute:battle', h);
     };
   }, []);
 
   const perMin = stats.pm;
   const failRate = stats.failRate;
-  const liveMerchants = window.MERCHANTS || [];
+  const liveMerchants = window.REPUTE_STATE?.merchants || window.MERCHANTS || [];
   const newMerch = liveMerchants.length;
+
+  // USDC saved = what ReputeAgent avoided paying vs what NaiveAgent wasted
+  const battleState = window.REPUTE_STATE?.battle || null;
+  const usdcSaved = battleState
+    ? Math.max(0, (battleState.naive?.wasted_usdc || 0) - (battleState.repute?.wasted_usdc || 0))
+    : (stats.usdcSaved || 0);
 
   const liveAlerts = window.REPUTE_STATE?.alerts || { red: [], amber: [], green: [] };
   const topFraudFlag = liveAlerts.red[0] || liveAlerts.amber[0] || null;
@@ -125,10 +133,10 @@ function RightStatsPanel({ feed, stats }) {
       <div className="panel">
         <div className="panel-h"><span>FLOW · LIVE</span><span className="right"><span style={{color:'var(--accent)'}}>● </span>STREAMING</span></div>
         <div style={{padding:14,display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-          <StatCard label="PAYMENTS / MIN" value={<Counter value={perMin} fmt={fmtNum} />} sub={<><span className="up">↑ 12.4%</span> vs 1h ago</>} color="green" />
-          <StatCard label="FAIL RATE · 1H" value={`${failRate.toFixed(2)}%`} color="amber" sub={<><span className="dn">↑ 0.18pp</span> vs 24h avg</>} />
-          <StatCard label="P50 LATENCY" value="142ms" color="green" sub="p99 488ms" />
-          <StatCard label="USDC FLOWED 1H" value="$1,248" sub="across 8,402 txs" />
+          <StatCard label="PAYMENTS / MIN" value={<Counter value={perMin} fmt={fmtNum} />} sub="live from indexer" color="green" />
+          <StatCard label="FAIL RATE · 1H" value={`${failRate.toFixed(2)}%`} color="amber" sub="failed / total calls" />
+          <StatCard label="MERCHANTS TRACKED" value={<Counter value={newMerch} fmt={fmtNum} />} color="green" sub="scored this cycle" />
+          <StatCard label="USDC SAVED" value={`$${usdcSaved.toFixed(4)}`} sub="ReputeAgent vs Naive" color="green" />
         </div>
       </div>
 
@@ -150,9 +158,9 @@ function RightStatsPanel({ feed, stats }) {
       </div>
 
       <div className="panel">
-        <div className="panel-h"><span>MERCHANTS · ACTIVE</span><span className="right">{newMerch} total</span></div>
+        <div className="panel-h"><span>MERCHANTS · TRACKED</span><span className="right" style={{color:'var(--accent)',fontVariantNumeric:'tabular-nums'}}>{newMerch > 0 ? newMerch : '…'} live</span></div>
         <div style={{padding:'10px 14px',display:'flex',flexDirection:'column',gap:6}}>
-          {(window.MERCHANTS || []).slice(0, 5).map(m => (
+          {(window.REPUTE_STATE?.merchants || window.MERCHANTS || []).slice(0, 5).map(m => (
             <div key={m.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 0'}}>
               <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
                 <ScoreBadge score={m.score} />
@@ -228,8 +236,8 @@ function LiveFeed({ feed, onSelectMerchant, paused, setPaused, stats }) {
         </div>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 360px',height:'calc(100vh - 48px - 53px)'}}>
-        <div style={{display:'flex',flexDirection:'column',borderRight:'1px solid var(--border)',minWidth:0}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 360px',height:'calc(100vh - 64px - 53px)',minHeight:0}}>
+        <div style={{display:'flex',flexDirection:'column',borderRight:'1px solid var(--border)',minWidth:0,minHeight:0}}>
           <FeedFilterBar filter={filter} setFilter={setFilter} paused={paused} setPaused={setPaused} />
 
           {/* Column header */}

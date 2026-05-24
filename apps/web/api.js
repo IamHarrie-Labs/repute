@@ -209,6 +209,24 @@ async function fetchIncidents() {
   } catch { /* offline — keep mock */ }
 }
 
+async function fetchBattle() {
+  try {
+    const r = await fetch(`${API}/battle`);
+    if (!r.ok) return;
+    const d = await r.json();
+    window.REPUTE_STATE.battle = d;
+    // Derive USDC saved = waste avoided by using trust routing
+    const saved = Math.max(0,
+      (d.naive?.wasted_usdc || 0) - (d.repute?.wasted_usdc || 0)
+    );
+    window.REPUTE_STATE.stats = {
+      ...window.REPUTE_STATE.stats,
+      usdcSaved: saved,
+    };
+    window.dispatchEvent(new CustomEvent('repute:battle'));
+  } catch { /* offline */ }
+}
+
 async function fetchRecentFeed() {
   try {
     const r = await fetch(`${API}/feed?limit=80`);
@@ -252,12 +270,13 @@ function disconnectSSE() {
 // Load data in order: leaderboard first (needed for merchant lookups in feed)
 ;(async () => {
   await fetchLeaderboard();
-  await Promise.all([fetchStats(), fetchIncidents()]);
+  await Promise.all([fetchStats(), fetchIncidents(), fetchBattle()]);
   fetchRecentFeed();
   // Poll
   setInterval(fetchStats, 5000);
   setInterval(fetchLeaderboard, 30000);
   setInterval(fetchIncidents, 15000);
+  setInterval(fetchBattle, 10000);
 })();
 
 // Expose for app.jsx

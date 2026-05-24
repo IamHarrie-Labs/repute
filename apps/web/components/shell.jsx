@@ -133,7 +133,7 @@ function Sidebar({ active, onNav, counts }) {
 
   const items = [
   { id: 'feed',    label: 'Live Feed',       icon: Icons.feed,  count: counts.feed },
-  { id: 'battle',  label: 'Live Benchmark',  icon: battleIcon,  count: counts.battle ?? 'NEW', alert: false },
+  { id: 'battle',  label: 'Benchmark',        icon: battleIcon,  count: counts.battle ?? 'LIVE', alert: false },
   { id: 'board',   label: 'Leaderboard',     icon: Icons.board, count: counts.merchants },
   { id: 'merchant',label: 'Merchants',       icon: Icons.merch },
   { id: 'alerts',  label: 'Alerts',          icon: Icons.alert, count: counts.alerts, alert: true },
