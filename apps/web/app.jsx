@@ -46,13 +46,36 @@ function App() {
     return () => window.removeEventListener('repute:merchants', onMerchants);
   }, []);
 
-  // Snapshot load
+  // Snapshot load — also seeds directly in offline mode because the
+  // repute:feed-snapshot event fires before React mounts (Babel is async)
   useEffect(() => {
     const onSnapshot = (e) => {
       if (e.detail?.length) setFeed(e.detail);
     };
     window.addEventListener('repute:feed-snapshot', onSnapshot);
+
+    // Offline: Babel compiles async, so the event from api.js fires before
+    // this listener exists. Seed the feed directly on mount instead.
+    if (!window.API_BASE && typeof seedFeed === 'function') {
+      const demo = seedFeed(50);
+      if (demo.length) setFeed(demo);
+    }
+
     return () => window.removeEventListener('repute:feed-snapshot', onSnapshot);
+  }, []);
+
+  // Offline demo ticker — adds a new live-looking row every ~1.5s so the
+  // feed feels alive on Vercel without a backend
+  useEffect(() => {
+    if (window.API_BASE) return; // only in offline/demo mode
+    const id = setInterval(() => {
+      const pool = window.DEMO_MERCHANTS;
+      if (!pool?.length || typeof genTx !== 'function') return;
+      const m = pool[Math.floor(Math.random() * pool.length)];
+      const tx = genTx(m, new Date());
+      setFeed(prev => [tx, ...prev].slice(0, 200));
+    }, 1500);
+    return () => clearInterval(id);
   }, []);
 
   // ── SSE live feed ─────────────────────────────────────────────────────────

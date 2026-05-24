@@ -8,8 +8,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- Apply saved theme before render to prevent flash -->
+<script>
+  (function() {
+    var t = localStorage.getItem('repute-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+
 <style>
-:root {
+:root,
+:root[data-theme="dark"] {
   --bg-0: #0A0A0F;
   --bg-1: #0E0E14;
   --bg-2: #12121A;
@@ -29,6 +38,31 @@
   --red: #EF4444;
   --cyan: #00D4FF;
   --violet: #A78BFA;
+
+  --font-sans: 'Poppins', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+:root[data-theme="light"] {
+  --bg-0: #FAFAF6;
+  --bg-1: #F2F2EC;
+  --bg-2: #ECECE3;
+  --bg-3: #E2E2D6;
+  --panel: #FFFFFF;
+  --border: #E0E0D2;
+  --border-strong: #BFBFB1;
+  --text-0: #0A0A0F;
+  --text-1: #2A2A35;
+  --text-2: #58586A;
+  --text-3: #8B8B98;
+  --text-4: #B5B5A6;
+
+  --accent: #006E36;
+  --accent-dim: #00502A;
+  --amber: #B27006;
+  --red: #C53030;
+  --cyan: #0098B8;
+  --violet: #6B47CC;
 
   --font-sans: 'Poppins', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -83,7 +117,7 @@ button { font-family: inherit; }
 /* ============ NAV ============ */
 .nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(10,10,15,0.85);
+  background: color-mix(in srgb, var(--bg-0) 88%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
@@ -118,6 +152,17 @@ button { font-family: inherit; }
 }
 .nav-cta:hover { background: var(--accent); color: var(--bg-0); }
 .nav-cta .arr { font-family: var(--font-sans); }
+
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 28px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-2); cursor: pointer; flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { display: block; }
 
 /* ============ STATUS RIBBON ============ */
 .ribbon {
@@ -912,6 +957,24 @@ button { font-family: inherit; }
       <a href="/dashboard">Dashboard <span class="ext">↗</span></a>
       <a href="#" class="ext">Docs ↗</a>
     </div>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle light / dark mode" aria-label="Toggle theme">
+      <svg id="theme-icon-moon" width="14" height="14" viewBox="0 0 12 12" fill="none" style="display:none">
+        <path d="M9 6.5A4 4 0 0 1 4.5 2 4 4 0 1 0 9 6.5z" stroke="currentColor" strokeWidth="1" fill="currentColor"/>
+      </svg>
+      <svg id="theme-icon-sun" width="14" height="14" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="2.2" stroke="currentColor" strokeWidth="1" fill="currentColor"/>
+        <g stroke="currentColor" strokeWidth="1" strokeLinecap="square">
+          <line x1="6" y1="0.5" x2="6" y2="2"/>
+          <line x1="6" y1="10" x2="6" y2="11.5"/>
+          <line x1="0.5" y1="6" x2="2" y2="6"/>
+          <line x1="10" y1="6" x2="11.5" y2="6"/>
+          <line x1="2" y1="2" x2="3" y2="3"/>
+          <line x1="9" y1="9" x2="10" y2="10"/>
+          <line x1="2" y1="10" x2="3" y2="9"/>
+          <line x1="9" y1="3" x2="10" y2="2"/>
+        </g>
+      </svg>
+    </button>
     <a href="/dashboard"><button class="nav-cta">Open dashboard <span class="arr">→</span></button></a>
   </div>
 </nav>
@@ -1713,6 +1776,26 @@ drift score · <span class="h">0.84</span> · 60% of calls
 </footer>
 
 <script>
+  // ============ Theme toggle ============
+  (function() {
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('repute-theme', t);
+      var moon = document.getElementById('theme-icon-moon');
+      var sun  = document.getElementById('theme-icon-sun');
+      if (moon) moon.style.display = t === 'dark' ? 'block' : 'none';
+      if (sun)  sun.style.display  = t === 'light' ? 'block' : 'none';
+    }
+    // Sync icon with current theme on load
+    applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      applyTheme(cur === 'dark' ? 'light' : 'dark');
+    });
+  })();
+
   // ============ Code tabs ============
   document.querySelectorAll('[data-tab]').forEach(t => {
     t.addEventListener('click', () => {
