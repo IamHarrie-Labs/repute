@@ -10,11 +10,20 @@
     "dev": "node --env-file=../../.env --experimental-strip-types src/index.ts",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["mcp", "arc", "trust", "reputation", "agent", "usdc", "x402"],
+  "keywords": [
+    "mcp",
+    "arc",
+    "trust",
+    "reputation",
+    "agent",
+    "usdc",
+    "x402"
+  ],
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.10.2",
-    "@repute/sdk": "workspace:*"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@repute/sdk": "workspace:*",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
