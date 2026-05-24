@@ -11,3 +11,5 @@ dist/
 # Circle wallet recovery files — contain private key material, never commit
 *.dat
 data/
+
+.vercel
