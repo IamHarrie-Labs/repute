@@ -162,15 +162,15 @@ function Sidebar({ active, onNav, counts }) {
       )}
 
       <div className="nav-section">Tools</div>
-      <div className="nav-item"><span style={{ display: 'flex', alignItems: 'center' }}><span className="ico">{Icons.api}</span>SDK · TS</span><span className="count">v3.2</span></div>
-      <div className="nav-item"><span style={{ display: 'flex', alignItems: 'center' }}><span className="ico">{Icons.api}</span>SDK · PY</span><span className="count">v1.4</span></div>
+      <div className="nav-item"><span style={{ display: 'flex', alignItems: 'center' }}><span className="ico">{Icons.api}</span>@repute/sdk</span><span className="count">v0.4.1</span></div>
+      <div className="nav-item"><span style={{ display: 'flex', alignItems: 'center' }}><span className="ico">{Icons.api}</span>@repute/cli</span><span className="count">v0.4.1</span></div>
       <div className="nav-item"><span style={{ display: 'flex', alignItems: 'center' }}><span className="ico">{Icons.ext}</span>x402 Spec</span></div>
 
       <div className="sidebar-foot">
         <div className="row"><span>NETWORK</span><span className="v">arc-testnet</span></div>
-        <div className="row"><span>RPC</span><span className="v">rpc.arc.xyz</span></div>
-        <div className="row"><span>UPTIME</span><span className="v" style={{ color: 'var(--accent)' }}>99.998%</span></div>
-        <div className="row"><span>OPERATOR</span><span className="v">agent.0x4d2A</span></div>
+        <div className="row"><span>CHAIN</span><span className="v">5042002</span></div>
+        <div className="row"><span>UPTIME</span><span className="v" style={{ color: 'var(--accent)' }}>99.12%</span></div>
+        <div className="row"><span>VERSION</span><span className="v">v0.4.1-arc</span></div>
       </div>
     </div>);
 

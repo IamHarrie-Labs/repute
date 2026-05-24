@@ -26,7 +26,7 @@ function MobileTopBar({ stats }) {
 function MobileLiveFeed({ feed }) {
   return (
     <div className="mobile-frame">
-      <MobileTopBar stats={{payments: 18420422}} />
+      <MobileTopBar stats={window.REPUTE_STATE?.stats || {payments: 8402}} />
       <div className="mobile-tab">
         <div className="t active">FEED</div>
         <div className="t">RANK</div>
@@ -38,15 +38,15 @@ function MobileLiveFeed({ feed }) {
       <div style={{padding:'10px 14px',borderBottom:'1px solid var(--border)',display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
         <div>
           <div className="mono" style={{fontSize:8,color:'var(--text-3)',textTransform:'uppercase'}}>PMTS/MIN</div>
-          <div className="mono" style={{fontSize:14,color:'var(--text-0)'}}>2,418</div>
+          <div className="mono" style={{fontSize:14,color:'var(--text-0)'}}>{(window.REPUTE_STATE?.stats?.pm || 12).toFixed(0)}</div>
         </div>
         <div>
           <div className="mono" style={{fontSize:8,color:'var(--text-3)',textTransform:'uppercase'}}>FAIL · 1H</div>
-          <div className="mono" style={{fontSize:14,color:'var(--amber)'}}>1.84%</div>
+          <div className="mono" style={{fontSize:14,color:'var(--amber)'}}>{(window.REPUTE_STATE?.stats?.failRate || 3.12).toFixed(2)}%</div>
         </div>
         <div>
           <div className="mono" style={{fontSize:8,color:'var(--text-3)',textTransform:'uppercase'}}>FRAUD</div>
-          <div className="mono" style={{fontSize:14,color:'var(--red)'}}>3 ●</div>
+          <div className="mono" style={{fontSize:14,color:'var(--red)'}}>{window.REPUTE_STATE?.stats?.activeFraud || 2} ●</div>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ function MobileLiveFeed({ feed }) {
 function MobileLeaderboard() {
   return (
     <div className="mobile-frame">
-      <MobileTopBar stats={{payments: 18420422}} />
+      <MobileTopBar stats={window.REPUTE_STATE?.stats || {payments: 8402}} />
       <div className="mobile-tab">
         <div className="t">FEED</div>
         <div className="t active">RANK</div>
@@ -101,7 +101,7 @@ function MobileLeaderboard() {
 
       {/* Filter chips */}
       <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid var(--border)',overflowX:'auto'}}>
-        <span className="pill" style={{background:'var(--accent)',color:'var(--bg-0)',border:'none'}}>ALL · 1,284</span>
+        <span className="pill" style={{background:'var(--accent)',color:'var(--bg-0)',border:'none'}}>ALL · {window.REPUTE_STATE?.stats?.merchants || (window.MERCHANTS || []).length || 8}</span>
         <span className="pill">7D</span>
         <span className="pill">DATA</span>
         <span className="pill">ORACLE</span>

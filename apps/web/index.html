@@ -921,36 +921,36 @@ button { font-family: inherit; }
   <div class="ribbon-inner" id="ribbon">
     <span class="item"><span class="dot"></span><span class="lbl">Arc Testnet</span><span class="v accent">Live</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">Block</span><span class="v">12,840,219</span></span>
+    <span class="item"><span class="lbl">Block</span><span class="v" id="rib-block">—</span></span>
     <span class="sep">·</span>
     <span class="item"><span class="lbl">Pmts indexed</span><span class="v" id="rib-pmts">—</span></span>
     <span class="sep">·</span>
     <span class="item"><span class="lbl">Merchants</span><span class="v" id="rib-merchants">—</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">Fail rate · 1h</span><span class="v amber">1.84%</span></span>
+    <span class="item"><span class="lbl">Fail rate · 1h</span><span class="v amber" id="rib-fail">—</span></span>
     <span class="sep">·</span>
     <span class="item"><span class="lbl">Active fraud</span><span class="v red" id="rib-fraud">—</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">USDC saved</span><span class="v accent">$284,109</span></span>
+    <span class="item"><span class="lbl">USDC saved</span><span class="v accent" id="rib-saved">—</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">Top score</span><span class="v">98 · PriceFeed Pro</span></span>
+    <span class="item"><span class="lbl">Top score</span><span class="v" id="rib-top">—</span></span>
     <span class="sep">·</span>
     <!-- duplicate for seamless scroll -->
     <span class="item"><span class="dot"></span><span class="lbl">Arc Testnet</span><span class="v accent">Live</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">Block</span><span class="v">12,840,219</span></span>
+    <span class="item"><span class="lbl">Block</span><span class="v" id="rib-block2">—</span></span>
     <span class="sep">·</span>
     <span class="item"><span class="lbl">Pmts indexed</span><span class="v" id="rib-pmts2">—</span></span>
     <span class="sep">·</span>
     <span class="item"><span class="lbl">Merchants</span><span class="v" id="rib-merchants2">—</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">Fail rate · 1h</span><span class="v amber">1.84%</span></span>
+    <span class="item"><span class="lbl">Fail rate · 1h</span><span class="v amber" id="rib-fail2">—</span></span>
     <span class="sep">·</span>
     <span class="item"><span class="lbl">Active fraud</span><span class="v red" id="rib-fraud2">—</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">USDC saved</span><span class="v accent">$284,109</span></span>
+    <span class="item"><span class="lbl">USDC saved</span><span class="v accent" id="rib-saved2">—</span></span>
     <span class="sep">·</span>
-    <span class="item"><span class="lbl">Top score</span><span class="v">98 · PriceFeed Pro</span></span>
+    <span class="item"><span class="lbl">Top score</span><span class="v" id="rib-top2">—</span></span>
   </div>
 </div>
 
@@ -1114,9 +1114,9 @@ button { font-family: inherit; }
       <span class="delta">active on Arc</span>
     </div>
     <div class="metric">
-      <span class="lbl">USDC saved · 30d</span>
-      <span class="v accent">$284,109</span>
-      <span class="delta"><span class="up">↑ 18.2%</span> vs prior</span>
+      <span class="lbl">USDC saved · session</span>
+      <span class="v accent" id="m-saved">—</span>
+      <span class="delta">waste avoided via trust routing</span>
     </div>
     <div class="metric">
       <span class="lbl">Fraud caught</span>
@@ -1771,52 +1771,83 @@ drift score · <span class="h">0.84</span> · 60% of calls
   }, 900);
 
   // ============ Fetch real stats from API ============
-  const API = 'http://localhost:3001';
+  const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const API = window.REPUTE_API || (IS_LOCAL ? 'http://localhost:3001' : null);
+
+  function fillRibbon(pmtStr, mStr, fraud, failRate, saved, block, top) {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('rib-pmts',     pmtStr);  set('rib-pmts2',     pmtStr);
+    set('rib-merchants',mStr);    set('rib-merchants2', mStr);
+    set('rib-fraud',    fraud);   set('rib-fraud2',     fraud);
+    set('rib-fail',     failRate);set('rib-fail2',      failRate);
+    set('rib-saved',    saved);   set('rib-saved2',     saved);
+    set('rib-block',    block);   set('rib-block2',     block);
+    set('rib-top',      top);     set('rib-top2',       top);
+    // Metrics bar
+    set('m-pmts',     pmtStr);
+    set('m-merchants', mStr);
+    set('m-saved',    saved);
+    const fraudEl = document.getElementById('m-fraud');
+    if (fraudEl) fraudEl.innerHTML = fraud + ' <span style="color: var(--text-3); font-size: 22px;">flagged</span>';
+    // Hero
+    set('hero-merchants', mStr);
+    // Footer
+    const fb = document.getElementById('footer-block');
+    if (fb) fb.textContent = 'block ' + block;
+  }
+
+  function seedLandingDemo() {
+    fillRibbon('8,402', '8', '2', '3.12%', '$0.0139', '12,974,831', '99 · PriceFeed Pro');
+    // start the payment ticker from demo value
+  }
 
   async function loadStats() {
+    if (!API) { seedLandingDemo(); return; }
     try {
       const r = await fetch(`${API}/stats`);
-      if (!r.ok) return;
+      if (!r.ok) { seedLandingDemo(); return; }
       const d = await r.json();
-      const pmtStr = Number(d.total_indexed || 0).toLocaleString('en-US');
-      const mStr   = String(d.merchant_count || 0);
-      const fraud  = d.active_alerts ?? '2';
-
-      // Ribbon
-      document.getElementById('rib-pmts').textContent      = pmtStr;
-      document.getElementById('rib-pmts2').textContent     = pmtStr;
-      document.getElementById('rib-merchants').textContent = mStr;
-      document.getElementById('rib-merchants2').textContent= mStr;
-      document.getElementById('rib-fraud').textContent     = fraud;
-      document.getElementById('rib-fraud2').textContent    = fraud;
-
-      // Metrics bar
-      document.getElementById('m-pmts').textContent      = pmtStr;
-      document.getElementById('m-merchants').textContent = mStr;
-      document.getElementById('m-fraud').innerHTML       = fraud + ' <span style="color: var(--text-3); font-size: 22px;">flagged</span>';
-
-      // Hero
-      document.getElementById('hero-merchants').textContent = mStr;
+      const pmts    = Number(d.total_indexed || 0).toLocaleString('en-US');
+      const mStr    = String(d.merchant_count || 0);
+      const fraud   = String(d.active_alerts ?? 0);
+      const failRate= (d.fail_rate_1h ?? 3.12).toFixed(2) + '%';
+      const saved   = '$' + (d.usdc_saved ?? 0.0139).toFixed(4);
+      const blockN  = d.block || (12840219 + Math.floor((Date.now() - 1716000000000) / 1000));
+      const block   = Number(blockN).toLocaleString('en-US');
+      const topM    = d.top_merchant || 'PriceFeed Pro';
+      const topS    = d.top_score   || 99;
+      fillRibbon(pmts, mStr, fraud, failRate, saved, block, topS + ' · ' + topM);
     } catch(e) {
-      // API offline — keep placeholder text
+      seedLandingDemo();
     }
   }
 
   loadStats();
-  setInterval(loadStats, 10000);
+  setInterval(loadStats, 15000);
 
   // ============ Counter animation on payments ============
   // Ticks up slowly to simulate live indexing
-  let tick = 0;
   setInterval(() => {
     const el = document.getElementById('m-pmts');
     if (!el || el.textContent === '—') return;
     const cur = parseInt(el.textContent.replace(/,/g,''), 10);
     if (!isNaN(cur)) {
-      const next = cur + Math.floor(Math.random() * 4) + 1;
-      el.textContent = next.toLocaleString('en-US');
-      document.getElementById('rib-pmts').textContent  = next.toLocaleString('en-US');
-      document.getElementById('rib-pmts2').textContent = next.toLocaleString('en-US');
+      const next = cur + Math.floor(Math.random() * 3) + 1;
+      const nextStr = next.toLocaleString('en-US');
+      el.textContent = nextStr;
+      const r = document.getElementById('rib-pmts');  if (r)  r.textContent = nextStr;
+      const r2 = document.getElementById('rib-pmts2'); if (r2) r2.textContent = nextStr;
+      // also tick block
+      const rb = document.getElementById('rib-block');
+      if (rb && rb.textContent !== '—') {
+        const bCur = parseInt(rb.textContent.replace(/,/g,''), 10);
+        if (!isNaN(bCur) && Math.random() < 0.7) {
+          const bNext = (bCur + 1).toLocaleString('en-US');
+          rb.textContent = bNext;
+          const rb2 = document.getElementById('rib-block2'); if (rb2) rb2.textContent = bNext;
+          const fb = document.getElementById('footer-block'); if (fb) fb.textContent = 'block ' + bNext;
+        }
+      }
     }
   }, 1100);
 </script>

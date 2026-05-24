@@ -159,7 +159,7 @@ window.REPUTE_STATE = {
   alerts: window.ALERTS || { red: [], amber: [], green: [] },
   stats: {
     payments: 0, merchants: 0, vol24: 0,
-    failRate: 1.84, activeFraud: 0, block: 12840219, pm: 0,
+    failRate: 0, activeFraud: 0, block: 12974831, pm: 0,
   },
   apiReady: false,
 };
@@ -179,9 +179,9 @@ async function fetchStats() {
       payments: d.total_indexed || 0,
       merchants: d.merchant_count || 0,
       vol24: d.vol_24h != null ? d.vol_24h : (d.total_indexed || 0) * 0.0005,
-      failRate: 1.84,
+      failRate: d.fail_rate_1h ?? 0,
       activeFraud: d.active_alerts || 0,
-      block: 12840219 + Math.floor((Date.now() - 1716000000000) / 1000),
+      block: d.block || (12974831 + Math.floor((Date.now() - 1748044800000) / 1000)),
       pm: d.per_minute || 0,
     };
     window.REPUTE_STATE.apiReady = true;
@@ -289,7 +289,7 @@ function seedDemoState() {
     vol24: 4.211,
     failRate: 3.12,
     activeFraud: 2,
-    block: 12840219 + Math.floor(Date.now() / 1000),
+    block: 12974831 + Math.floor((Date.now() - 1748044800000) / 1000),
     pm: 12.4,
     usdcSaved: 0.0139,
   };
