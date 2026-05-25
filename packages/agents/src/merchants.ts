@@ -166,7 +166,11 @@ for (const m of MERCHANT_PROFILES) {
     },
   }));
 
-  serve({ fetch: app.fetch, port: m.port });
+  // Bind to 127.0.0.1 only — merchants are internal-only (buyers in the same
+  // process call them on localhost). This stops Railway from picking up a
+  // merchant port (e.g. 4001) and exposing it as the public service when API
+  // and merchants share a container.
+  serve({ fetch: app.fetch, port: m.port, hostname: '127.0.0.1' });
 
   const fraudTag = (m as any).fraudType ? ` [${((m as any).fraudType as string).toUpperCase()}]` : "";
   const rel = (m.reliability * 100).toFixed(0);
