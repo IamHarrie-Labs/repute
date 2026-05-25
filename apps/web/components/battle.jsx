@@ -23,14 +23,74 @@ const DEMO_BATTLE = {
   updated_at: Date.now(),
 };
 
+// Endpoints and merchant names for demo call log rotation
+const DEMO_ENDPOINTS = ['/v1/price-feed','/v1/embed','/v2/inference','/v1/quote','/v1/aggregate','/v1/oracle/eth-usd'];
+const DEMO_GOOD = [
+  { addr:'0x15481D7b2F', name:'PriceFeed Pro',   score:99, lat:87  },
+  { addr:'0x8aF3c14d9A', name:'ChainOracle',     score:94, lat:121 },
+  { addr:'0x2b91eEc302', name:'Inference Node',  score:88, lat:201 },
+  { addr:'0xf04Da081bB', name:'StoragePeer',      score:82, lat:178 },
+];
+const DEMO_BAD = [
+  { addr:'0xA891cC3f0E', name:'ShadowAPI',  score:12, lat:null },
+  { addr:'0x3c00FFba12', name:'FlakyNode',  score:31, lat:740  },
+];
+
+function makeDemoCall(isRepute, callId) {
+  // ReputeAgent always picks good merchants; NaiveAgent picks randomly including bad ones
+  const pool = isRepute ? DEMO_GOOD : [...DEMO_GOOD, ...DEMO_BAD, ...DEMO_BAD];
+  const m = pool[Math.floor(Math.random() * pool.length)];
+  const delivered = m.score > 50 ? 1 : (Math.random() < 0.15 ? 1 : 0);
+  return {
+    id: callId,
+    buyer: isRepute ? '0xRepute00000000000000000000000000000000000' : '0xNaive000000000000000000000000000000000000',
+    merchant: m.addr,
+    merchant_name: m.name,
+    delivered,
+    amount_usdc: parseFloat((0.0001 + Math.random() * 0.0004).toFixed(4)),
+    latency_ms: delivered && m.lat ? Math.round(m.lat * (0.8 + Math.random() * 0.4)) : m.lat,
+    trust_score: m.score,
+  };
+}
+
 function BattlePanel() {
   const isOffline = !window.API_BASE;
-  const [data, setData] = useState(isOffline ? DEMO_BATTLE : null);
+  const [data, setData] = useState(() => {
+    // Deep-clone demo data so we can mutate it during animation
+    const d = JSON.parse(JSON.stringify(DEMO_BATTLE));
+    return isOffline ? d : null;
+  });
   const [error, setError] = useState(null);
   const [tick, setTick] = useState(0);
 
+  // In offline/demo mode: animate the numbers so it feels live
   useEffect(() => {
-    if (isOffline) return; // use static demo data, no polling needed
+    if (!isOffline) return;
+    let callId = 1000;
+    const id = setInterval(() => {
+      const isRepute = Math.random() < 0.5;
+      const call = makeDemoCall(isRepute, callId++);
+      setData(prev => {
+        if (!prev) return prev;
+        const side = isRepute ? 'repute' : 'naive';
+        const s = { ...prev[side] };
+        s.total_calls += 1;
+        if (call.delivered) { s.successes += 1; } else { s.failures += 1; }
+        s.success_rate = parseFloat(((s.successes / s.total_calls) * 100).toFixed(1));
+        s.total_spent  = parseFloat((s.total_spent + call.amount_usdc).toFixed(6));
+        if (!call.delivered) s.wasted_usdc = parseFloat((s.wasted_usdc + call.amount_usdc).toFixed(6));
+        if (call.latency_ms && s.avg_latency) {
+          s.avg_latency = Math.round((s.avg_latency * 0.95) + (call.latency_ms * 0.05));
+        }
+        const recent = [call, ...(prev.recent_calls || [])].slice(0, 20);
+        return { ...prev, [side]: s, recent_calls: recent, updated_at: Date.now() };
+      });
+    }, 1800);
+    return () => clearInterval(id);
+  }, [isOffline]);
+
+  useEffect(() => {
+    if (isOffline) return;
     let alive = true;
 
     async function loadBattle() {
