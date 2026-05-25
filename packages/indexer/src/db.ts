@@ -9,7 +9,9 @@ export const DB_PATH = process.env.DATA_DIR
 
 export function openDb() {
   const db = new DatabaseSync(DB_PATH);
-  db.exec("PRAGMA journal_mode = WAL");
+  // busy_timeout first so concurrent writers don't hit ERR_SQLITE_ERROR on startup
+  db.exec("PRAGMA busy_timeout = 15000");
+  try { db.exec("PRAGMA journal_mode = WAL"); } catch { /* already WAL */ }
   db.exec("PRAGMA foreign_keys = ON");
   return db;
 }

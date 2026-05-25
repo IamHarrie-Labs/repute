@@ -13,9 +13,10 @@ const DB_PATH = process.env.DATA_DIR
   : path.resolve(__dirname, "../../../data/receipt-layer.db");
 
 const db = new DatabaseSync(DB_PATH);
-db.exec("PRAGMA journal_mode = WAL");
+// busy_timeout first so WAL upgrade itself waits if another process is mid-write
+db.exec("PRAGMA busy_timeout = 15000");
+try { db.exec("PRAGMA journal_mode = WAL"); } catch { /* already WAL */ }
 db.exec("PRAGMA foreign_keys = ON");
-db.exec("PRAGMA busy_timeout = 10000");
 db.exec("PRAGMA cache_size = -8000");   // 8MB page cache
 db.exec("PRAGMA synchronous = NORMAL"); // faster writes, safe with WAL
 
@@ -248,12 +249,19 @@ app.post("/ingest", async (c) => {
 
   const now = Date.now();
 
-  // Upsert merchant record (agent merchants register themselves on first call)
+  // Upsert merchant record (agent merchants register themselves on first call).
+  // If a merchant_name is provided we also update the name on conflict — this
+  // upgrades hex-slice placeholders to the real name once the merchant supplies one.
+  const supplied = body.merchant_name ?? merchant.slice(0, 10);
+  const cat = body.merchant_category ?? 'agent';
   db.prepare(`
     INSERT INTO merchants (address, name, category, first_seen_at, last_active_at)
-    VALUES (?, ?, 'agent', ?, ?)
-    ON CONFLICT(address) DO UPDATE SET last_active_at = excluded.last_active_at
-  `).run(merchant, body.merchant_name ?? merchant.slice(0, 10), now, now);
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(address) DO UPDATE SET
+      last_active_at = excluded.last_active_at,
+      name           = CASE WHEN excluded.name LIKE '0x%' THEN merchants.name ELSE excluded.name END,
+      category       = CASE WHEN excluded.category = 'agent' AND merchants.category != 'unknown' THEN merchants.category ELSE excluded.category END
+  `).run(merchant, supplied, cat, now, now);
 
   // Insert or update payment record
   // If the indexer already captured this tx_hash, we enrich it with metadata.

@@ -9,8 +9,8 @@ const DB_PATH = process.env.DATA_DIR
   : path.resolve(__dirname, "../../../data/receipt-layer.db");
 
 const db = new DatabaseSync(DB_PATH);
-// WAL is already set by the indexer and persists; just set timeout
-db.exec("PRAGMA busy_timeout = 5000");
+db.exec("PRAGMA busy_timeout = 15000");
+try { db.exec("PRAGMA journal_mode = WAL"); } catch { /* already WAL */ }
 
 // Ensure tables exist before querying (scoring may start before indexer)
 db.exec(`

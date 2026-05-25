@@ -33,6 +33,7 @@ function sleep(ms: number) {
 async function reportToRepute(payload: {
   tx_hash: string;
   merchant: string;
+  merchant_name?: string;
   buyer: string;
   amount_usdc: number;
   endpoint: string;
@@ -112,7 +113,7 @@ for (const m of MERCHANT_PROFILES) {
     // Ghost: takes payment, times out silently
     if ((m as any).fraudType === "ghost") {
       reportToRepute({
-        tx_hash: proof, merchant: merchantAddress, buyer: buyerHint,
+        tx_hash: proof, merchant: merchantAddress, merchant_name: m.name, buyer: buyerHint,
         amount_usdc: m.priceUsdc, endpoint: "/v1/data",
         latency_ms: actualLatency, delivered: false, response_valid: false,
       });
@@ -122,7 +123,7 @@ for (const m of MERCHANT_PROFILES) {
     const delivers = Math.random() < m.reliability;
     if (!delivers) {
       reportToRepute({
-        tx_hash: proof, merchant: merchantAddress, buyer: buyerHint,
+        tx_hash: proof, merchant: merchantAddress, merchant_name: m.name, buyer: buyerHint,
         amount_usdc: m.priceUsdc, endpoint: "/v1/data",
         latency_ms: actualLatency, delivered: false, response_valid: true,
       });
@@ -134,7 +135,7 @@ for (const m of MERCHANT_PROFILES) {
     totalRevenue += m.priceUsdc;
 
     reportToRepute({
-      tx_hash: proof, merchant: merchantAddress, buyer: buyerHint,
+      tx_hash: proof, merchant: merchantAddress, merchant_name: m.name, buyer: buyerHint,
       amount_usdc: m.priceUsdc, endpoint: "/v1/data",
       latency_ms: actualLatency, delivered: true, response_valid: true,
     });
