@@ -64,7 +64,12 @@ export const MERCHANT_PROFILES = [
 
 export type MerchantProfile = typeof MERCHANT_PROFILES[number];
 
-export const API_BASE = process.env.API_URL ?? "http://localhost:3001";
+// API_BASE resolution: explicit API_URL > derive from PORT/API_PORT (handles Railway
+// injecting $PORT) > localhost:3001 default for local dev.
+const _internalPort = process.env.API_URL
+  ? null
+  : (process.env.PORT ?? process.env.API_PORT ?? "3001");
+export const API_BASE = process.env.API_URL ?? `http://localhost:${_internalPort}`;
 
 export const ARC_RPC_URL = process.env.ARC_RPC_URL ?? "https://rpc.testnet.arc.network";
 
