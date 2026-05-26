@@ -54,16 +54,20 @@ function makeDemoCall(isRepute, callId) {
 }
 
 function BattlePanel() {
-  const isOffline = !window.API_BASE;
+  // Treat as offline if: no API URL, OR API returned data but both buyers have 0 calls.
+  // The latter happens when Railway's API is up but RUN_AGENTS isn't producing battle data.
   const [data, setData] = useState(() => {
-    // Deep-clone demo data so we can mutate it during animation
     const d = JSON.parse(JSON.stringify(DEMO_BATTLE));
-    return isOffline ? d : null;
+    return !window.API_BASE ? d : null;
   });
   const [error, setError] = useState(null);
   const [tick, setTick] = useState(0);
 
-  // In offline/demo mode: animate the numbers so it feels live
+  const apiOff = !window.API_BASE;
+  const buyersIdle = data && data.naive?.total_calls === 0 && data.repute?.total_calls === 0;
+  const isOffline = apiOff || buyersIdle;
+
+  // In offline/idle mode: animate the demo numbers so it feels live
   useEffect(() => {
     if (!isOffline) return;
     let callId = 1000;
@@ -98,7 +102,14 @@ function BattlePanel() {
         const res = await fetch(`${window.API_BASE}/battle`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        if (alive) { setData(json); setError(null); }
+        if (alive) {
+          // If API is up but buyers have zero data (e.g. Railway agents not yet
+          // running), swap to the animated demo dataset so the panel still
+          // tells a story instead of showing 0/0/0/0.
+          const idle = json?.naive?.total_calls === 0 && json?.repute?.total_calls === 0;
+          setData(idle ? JSON.parse(JSON.stringify(DEMO_BATTLE)) : json);
+          setError(null);
+        }
       } catch (e) {
         if (alive) setError(e.message);
       }
